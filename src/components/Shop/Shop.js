@@ -3,6 +3,7 @@ import productsDetails from '../../productsDetails/products.json';
 import './Shop.css';
 import Product from '../Product/Product';
 import Cart from '../Cart/Cart';
+import { saveCartItem } from '../../utilities/localDB';
 
 const Shop = () => {
     const shuffleArray = (array) => {
@@ -14,38 +15,37 @@ const Shop = () => {
     };
 
     const [products, setProducts] = useState([]);
-
-    useEffect(() => {
-        // Shuffle products and set the state
-        const shuffledProducts = shuffleArray([...productsDetails]);
-        setProducts(shuffledProducts.slice(0, 10)); // Get first 10 products
-    }, []);
-
     const [cart, setCart] = useState([]);
 
-    const handleAddButton = (product) =>{
+    useEffect(() => {
+        const shuffledProducts = shuffleArray([...productsDetails]);
+        setProducts(shuffledProducts.slice(0, 12)); // Get first 12 products
+    }, []);
+
+    const handleAddButton = (product) => {
         const newCart = [...cart, product];
         setCart(newCart);
-    }
-
-    
+        const sameProduct = newCart.filter((pd) => pd.id === product.id);
+        const count = sameProduct.length;
+        saveCartItem(product.id, count);
+    };
 
     return (
-        <div className='shop-container'>
+        <div className="shop-container">
             <div className="product-container">
-                {
-                    products.map(pd => <Product 
-                        handleAddButton = {handleAddButton}
+                {products.map((pd) => (
+                    <Product
+                        key={pd.id}
+                        id={pd.id}
+                        displayAddCartButton={true}
+                        handleAddButton={handleAddButton}
                         product={pd}
-
-                        ></Product>)
-                }
+                    />
+                ))}
             </div>
-
             <div className="cart-container">
-                <Cart cart={cart}></Cart>
+                <Cart cart={cart} />
             </div>
-            
         </div>
     );
 };
